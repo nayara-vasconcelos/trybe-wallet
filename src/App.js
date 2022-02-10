@@ -1,14 +1,32 @@
 import React from 'react';
-import { Route, Switch } from 'react-router';
+import { Redirect, Route, Switch } from 'react-router';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import Login from './pages/Login';
+import Wallet from './pages/Wallet';
 
-function App() {
-  return (
-    <Switch>
-      <Route exact path="/" component={ Login } />
-    </Switch>
-  );
+class App extends React.Component {
+  render() {
+    const { isLogged } = this.props;
+
+    return (
+      <Switch>
+        <Route path="/carteira" component={ Wallet } />
+        <Route exact path="/">
+          {isLogged ? <Redirect to="/carteira" /> : <Login />}
+        </Route>
+      </Switch>
+    );
+  }
 }
 
-export default App;
+App.propTypes = {
+  isLogged: PropTypes.bool.isRequired,
+};
+
+const mapStateToProps = (state) => ({
+  isLogged: (state.user.email).length > 0,
+});
+
+export default connect(mapStateToProps, null)(App);
