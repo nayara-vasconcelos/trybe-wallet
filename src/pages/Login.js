@@ -1,4 +1,8 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+
+import { saveEmail } from '../actions';
 
 const INITIAL_STATE = {
   email: '',
@@ -38,12 +42,21 @@ class Login extends React.Component {
     this.setState({ isBtnDisabled: !isLoginValid });
   }
 
+  handleSubmit = (event) => {
+    const { signIn } = this.props;
+    const { email } = this.state;
+
+    event.preventDefault();
+    signIn(email);
+    // history.push('/carteira');
+  }
+
   render() {
     const { email, password, isBtnDisabled } = this.state;
     return (
       <div>
         <h2>Login</h2>
-        <form>
+        <form onSubmit={ this.handleSubmit }>
           {/* Campo para e-mail */}
           <label htmlFor="email-input">
             e-mail:
@@ -83,4 +96,13 @@ class Login extends React.Component {
   }
 }
 
-export default Login;
+Login.propTypes = {
+  signIn: PropTypes.func.isRequired,
+  // history: PropTypes.shape({ push: PropTypes.func.isRequired }).isRequired,
+};
+
+const mapDispatchToProps = (dispatch) => ({
+  signIn: (email) => dispatch(saveEmail(email)),
+});
+
+export default connect(null, mapDispatchToProps)(Login);
