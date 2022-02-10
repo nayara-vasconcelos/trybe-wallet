@@ -16,7 +16,26 @@ class Login extends React.Component {
   handleChange = ({ target }) => {
     const { name, value } = target;
 
-    this.setState({ [name]: value });
+    this.setState({ [name]: value }, () => {
+      this.validateLogin();
+    });
+  }
+
+  validateLogin = () => {
+    const { email, password } = this.state;
+    const minLengthPassword = 6;
+    // Ref: https://ui.dev/validate-email-address-javascript/
+    // const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // Ref: http://zparacha.com/validate-email-address-using-javascript-regular-expression
+    const EMAIL_REGEX = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+
+    const isLoginValid = (
+      (email.match(EMAIL_REGEX))
+      && (password.length >= minLengthPassword)
+    );
+
+    this.setState({ isBtnDisabled: !isLoginValid });
   }
 
   render() {
@@ -52,7 +71,10 @@ class Login extends React.Component {
               placeholder="Digite sua senha"
             />
           </label>
-          <button type="submit" disabled={ isBtnDisabled }>
+          <button
+            type="submit"
+            disabled={ isBtnDisabled }
+          >
             Entrar
           </button>
         </form>
