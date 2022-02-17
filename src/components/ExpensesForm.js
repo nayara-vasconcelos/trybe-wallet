@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import { addExpense } from '../actions';
 
 /**
  * Formato no Redux:
@@ -24,16 +27,35 @@ import React, { Component } from 'react';
 const INITIAL_STATE = {
   value: '',
   description: '',
-  currency: '',
-  method: '',
-  tag: '',
+  currency: 'USD',
+  method: 'Dinheiro',
+  tag: 'Alimentação',
 };
 
-export default class ExpensesForm extends Component {
+class ExpensesForm extends Component {
   constructor(props) {
     super(props);
 
     this.state = INITIAL_STATE;
+  }
+
+  handleChange = ({ target }) => {
+    const { name, value } = target;
+
+    this.setState({ [name]: value });
+  };
+
+  handleAddBtn = () => {
+    console.log('chamou botão');
+    const { saveExpense, expenses } = this.props;
+    let id = 0;
+
+    if (expenses.length !== 0) {
+      id = expenses[(expenses.length - 1)].id + 1;
+    }
+
+    saveExpense({ id, ...this.state });
+    this.setState(INITIAL_STATE);
   }
 
   render() {
@@ -46,8 +68,9 @@ export default class ExpensesForm extends Component {
           <input
             type="number"
             data-testid="value-input"
-            name="expense"
+            name="value"
             value={ value }
+            onChange={ this.handleChange }
           />
           {/* Campo para descrição da despesa */}
           <input
@@ -55,13 +78,14 @@ export default class ExpensesForm extends Component {
             data-testid="description-input"
             name="description"
             value={ description }
-
+            onChange={ this.handleChange }
           />
           {/* Campo para escolher moeda */}
           <select
             name="currency"
             value={ currency }
             data-testid="currency-input"
+            onChange={ this.handleChange }
           >
             <option value="USD">USD</option>
             <option value="CAD">CAD</option>
@@ -83,6 +107,7 @@ export default class ExpensesForm extends Component {
             name="method"
             value={ method }
             data-testid="method-input"
+            onChange={ this.handleChange }
           >
             <option value="Dinheiro'">Dinheiro</option>
             <option value="Cartão de crédito">Cartão de crédito</option>
@@ -93,6 +118,7 @@ export default class ExpensesForm extends Component {
             name="tag"
             value={ tag }
             data-testid="tag-input"
+            onChange={ this.handleChange }
           >
             <option value="Alimentação">Alimentação</option>
             <option value="Lazer">Lazer</option>
@@ -103,6 +129,7 @@ export default class ExpensesForm extends Component {
           {/* Botão para salvar despesas */}
           <button
             type="button"
+            onClick={ this.handleAddBtn }
           >
             Adicionar despesa
           </button>
@@ -111,3 +138,26 @@ export default class ExpensesForm extends Component {
     );
   }
 }
+
+ExpensesForm.propTypes = {
+  saveExpense: PropTypes.func.isRequired,
+  expenses: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+    PropTypes.object,
+  ]))),
+};
+
+ExpensesForm.defaultProps = {
+  expenses: [],
+};
+
+const mapStateToProps = (state) => ({
+  expenses: state.wallet.expenses,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  saveExpense: (expense) => dispatch(addExpense(expense)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(ExpensesForm);
