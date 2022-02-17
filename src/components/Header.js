@@ -5,10 +5,14 @@ import PropTypes from 'prop-types';
 class Header extends Component {
   sumExpenses = () => {
     const { expenses } = this.props;
-    console.log(expenses);
+    // console.log(expenses);
     if (expenses.length === 0) return '0.00';
 
-    const sum = expenses.reduce((acc, curr) => acc + curr, 0).toFixed(2);
+    const sum = expenses.reduce((acc, curr) => {
+      const { value, currency, exchangeRates } = curr;
+      const quotation = exchangeRates[currency].ask;
+      return (acc + (parseFloat(value) * parseFloat(quotation)));
+    }, 0).toFixed(2);
     console.log(sum);
     return sum;
   }
@@ -35,11 +39,15 @@ class Header extends Component {
 
 Header.propTypes = {
   userEmail: PropTypes.string.isRequired,
-  expenses: PropTypes.arrayOf(PropTypes.number),
+  expenses: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+    PropTypes.object,
+  ]))),
 };
 
 Header.defaultProps = {
-  expenses: 0.00,
+  expenses: [],
 };
 
 const mapStateToProps = (state) => ({
