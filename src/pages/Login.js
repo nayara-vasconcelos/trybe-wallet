@@ -20,9 +20,7 @@ class Login extends React.Component {
   handleChange = ({ target }) => {
     const { name, value } = target;
 
-    this.setState({ [name]: value }, () => {
-      this.validateLogin();
-    });
+    this.setState({ [name]: value }, () => this.validateLogin());
   }
 
   validateLogin = () => {
@@ -42,11 +40,9 @@ class Login extends React.Component {
     this.setState({ isBtnDisabled: !isLoginValid });
   }
 
-  handleSubmit = (event) => {
+  handleSubmit = () => {
     const { signIn } = this.props;
     const { email } = this.state;
-
-    event.preventDefault();
     signIn(email);
     // history.push('/carteira');
   }
@@ -56,12 +52,12 @@ class Login extends React.Component {
     return (
       <div>
         <h2>Login</h2>
-        <form onSubmit={ this.handleSubmit }>
+        <form>
           {/* Campo para e-mail */}
           <label htmlFor="email-input">
             e-mail:
             <input
-              type="e-mail"
+              type="email"
               id="email-input"
               name="email"
               value={ email }
@@ -85,8 +81,9 @@ class Login extends React.Component {
             />
           </label>
           <button
-            type="submit"
+            type="button"
             disabled={ isBtnDisabled }
+            onClick={ this.handleSubmit }
           >
             Entrar
           </button>
