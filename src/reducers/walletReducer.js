@@ -1,6 +1,11 @@
 // Esse reducer será responsável por tratar o todas as informações relacionadas as despesas
 
-import { FAILED_REQUEST, REQUEST_EXCHANGE_RATE, UPDATE_EXPENSES } from '../actions';
+import {
+  FAILED_REQUEST,
+  REQUEST_EXCHANGE_RATES,
+  SAVE_EXCHANGE_RATES,
+  UPDATE_EXPENSES,
+} from '../actions';
 
 const INITIAL_STATE = {
   currencies: [],
@@ -11,7 +16,7 @@ const INITIAL_STATE = {
 
 const walletReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
-  case REQUEST_EXCHANGE_RATE:
+  case REQUEST_EXCHANGE_RATES:
     return ({
       ...state,
       isFetching: true,
@@ -20,6 +25,13 @@ const walletReducer = (state = INITIAL_STATE, action) => {
     return ({
       ...state,
       expenses: [...state.expenses, action.payload],
+      isFetching: false,
+      error: '',
+    });
+  case SAVE_EXCHANGE_RATES:
+    return ({
+      ...state,
+      currencies: Object.keys(action.payload).filter((currency) => currency !== 'USDT'),
       isFetching: false,
       error: '',
     });

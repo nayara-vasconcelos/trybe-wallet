@@ -2,8 +2,9 @@
 
 export const SAVE_USER_EMAIL = 'SAVE_EMAIL';
 export const UPDATE_EXPENSES = 'UPDATE_EXPENSES';
-export const REQUEST_EXCHANGE_RATE = 'REQUEST_EXCHANGE_RATE';
+export const REQUEST_EXCHANGE_RATES = 'REQUEST_EXCHANGE_RATES';
 export const FAILED_REQUEST = 'FAILED_REQUEST';
+export const SAVE_EXCHANGE_RATES = 'SAVE_EXCHANGE_RATES';
 
 export const saveEmail = (payload) => ({
   type: SAVE_USER_EMAIL,
@@ -11,7 +12,7 @@ export const saveEmail = (payload) => ({
 });
 
 const requestAPI = () => ({
-  type: REQUEST_EXCHANGE_RATE,
+  type: REQUEST_EXCHANGE_RATES,
 });
 
 const failedRequest = (error) => ({
@@ -29,5 +30,18 @@ export const addExpense = (payload) => (dispatch) => { // thunk declarado
   return fetch('https://economia.awesomeapi.com.br/json/all')
     .then((response) => response.json())
     .then((exchangeRates) => dispatch(updateExpenses({ ...payload, exchangeRates })))
+    .catch((error) => dispatch(failedRequest(error)));
+};
+
+const saveCurrencies = (payload) => ({
+  type: SAVE_EXCHANGE_RATES,
+  payload,
+});
+
+export const fetchCurrencies = () => (dispatch) => { // thunk declarado
+  dispatch(requestAPI());
+  return fetch('https://economia.awesomeapi.com.br/json/all')
+    .then((response) => response.json())
+    .then((exchangeRates) => dispatch(saveCurrencies(exchangeRates)))
     .catch((error) => dispatch(failedRequest(error)));
 };
