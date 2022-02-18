@@ -5,6 +5,7 @@ import {
   REQUEST_EXCHANGE_RATES,
   SAVE_EXCHANGE_RATES,
   UPDATE_EXPENSES,
+  REMOVE_EXPENSE,
 } from '../actions';
 
 const INITIAL_STATE = {
@@ -40,6 +41,11 @@ const walletReducer = (state = INITIAL_STATE, action) => {
       ...state,
       isFetching: false,
       error: action.error,
+    });
+  case REMOVE_EXPENSE:
+    return ({
+      ...state,
+      expenses: state.expenses.filter((expense) => expense.id !== action.payload),
     });
   default:
     return state;
