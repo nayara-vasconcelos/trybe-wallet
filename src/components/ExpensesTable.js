@@ -4,6 +4,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { removeExpense } from '../actions';
 
 /**
  * Formato no Redux:
@@ -27,6 +28,12 @@ import PropTypes from 'prop-types';
  */
 
 class ExpensesTable extends Component {
+  handleDeleteBtn = ({ target }) => {
+    const id = parseInt(target.name, 10);
+    const { deleteExpense } = this.props;
+    deleteExpense(id);
+  }
+
   renderTableHeader = () => {
     const titles = [
       'Descrição',
@@ -86,7 +93,14 @@ class ExpensesTable extends Component {
             <button type="button" name={ id }>Editar</button>
           </td>
           <td>
-            <button type="button" name={ id }>Excluir</button>
+            <button
+              type="button"
+              name={ id }
+              data-testid="delete-btn"
+              onClick={ this.handleDeleteBtn }
+            >
+              Excluir
+            </button>
           </td>
         </tr>
       );
@@ -120,6 +134,7 @@ ExpensesTable.propTypes = {
     PropTypes.number,
     PropTypes.object,
   ]))),
+  deleteExpense: PropTypes.func.isRequired,
 };
 
 ExpensesTable.defaultProps = {
@@ -130,4 +145,8 @@ const mapStateToProps = (state) => ({
   expenses: state.wallet.expenses,
 });
 
-export default connect(mapStateToProps, null)(ExpensesTable);
+const mapDispatchToProps = (dispatch) => ({
+  deleteExpense: (id) => dispatch(removeExpense(id)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(ExpensesTable);
