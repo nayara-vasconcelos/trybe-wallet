@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 class Header extends Component {
   sumExpenses = () => {
     const { expenses } = this.props;
-    // console.log(expenses);
+
     if (expenses.length === 0) return '0.00';
 
     const sum = expenses.reduce((acc, curr) => {
@@ -13,7 +13,7 @@ class Header extends Component {
       const quotation = exchangeRates[currency].ask;
       return (acc + (parseFloat(value) * parseFloat(quotation)));
     }, 0).toFixed(2);
-    console.log(sum);
+
     return sum;
   }
 

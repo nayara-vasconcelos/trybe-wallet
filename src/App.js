@@ -1,3 +1,10 @@
+// Referências:
+// Aulas ao vivo do bloco 15 do course e documentação
+// Course: https://app.betrybe.com/course/
+// https://developer.mozilla.org/en-US
+// https://www.w3schools.com/
+// https://pt-br.reactjs.org/docs/typechecking-with-proptypes.html
+
 import React from 'react';
 import { Redirect, Route, Switch } from 'react-router';
 import { connect } from 'react-redux';

@@ -50,7 +50,6 @@ class ExpensesForm extends Component {
   };
 
   handleAddBtn = () => {
-    console.log('chamou botão');
     const { saveExpense, expenses } = this.props;
     let id = 0;
 
