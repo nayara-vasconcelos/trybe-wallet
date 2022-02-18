@@ -1,6 +1,32 @@
-import React, { Component } from 'react';
+// Ref: https://www.w3schools.com/html/html_tables.asp
+// Ref: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/columnheader_role
 
-export default class ExpensesTable extends Component {
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+
+/**
+ * Formato no Redux:
+ *
+ * expenses: [{
+  "id": 0,
+  "value": "3",
+  "description": "Hot Dog",
+  "currency": "USD",
+  "method": "Dinheiro",
+  "tag": "Alimentação",
+  "exchangeRates": {
+    "USD": {
+      "code": "USD",
+      "name": "Dólar Americano",
+      "ask": "5.6208",
+      ...
+    },
+  }]
+  *
+ */
+
+class ExpensesTable extends Component {
   renderTableHeader = () => {
     const titles = [
       'Descrição',
@@ -21,25 +47,87 @@ export default class ExpensesTable extends Component {
     return tableHeader;
   }
 
+  renderTableRows = () => {
+    const { expenses } = this.props;
+
+    const tableRows = expenses.map((expense) => {
+      const {
+        id,
+        description,
+        tag,
+        method,
+        value,
+        currency,
+        exchangeRates,
+      } = expense;
+
+      const currencyName = exchangeRates[currency].name;
+      const exchangeRate = parseFloat(exchangeRates[currency].ask);
+      const convertedValue = (parseFloat(value) * exchangeRate).toFixed(2);
+
+      const cells = [
+        description,
+        tag,
+        method,
+        parseFloat(value).toFixed(2),
+        'Real',
+        exchangeRate.toFixed(2),
+        convertedValue,
+        currencyName];
+
+      const row = cells.map((cell) => (
+        <td key={ cell }>{ cell }</td>
+      ));
+
+      return (
+        <tr key={ id }>
+          { row }
+          <td>
+            <button type="button" name={ id }>Editar</button>
+          </td>
+          <td>
+            <button type="button" name={ id }>Excluir</button>
+          </td>
+        </tr>
+      );
+    });
+
+    return tableRows;
+  }
+
   render() {
+    const { expenses } = this.props;
     return (
       <section>
         <table>
-          <tr>
-            { this.renderTableHeader() }
-          </tr>
-          {/* <tr>
-            <td>Emil</td>
-            <td>Tobias</td>
-            <td>Linus</td>
-          </tr>
-          <tr>
-            <td>16</td>
-            <td>14</td>
-            <td>10</td>
-          </tr> */}
+          <thead>
+            <tr>
+              { this.renderTableHeader() }
+            </tr>
+          </thead>
+          <tbody>
+            { (expenses.length > 0) && this.renderTableRows() }
+          </tbody>
         </table>
       </section>
     );
   }
 }
+
+ExpensesTable.propTypes = {
+  expenses: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+    PropTypes.object,
+  ]))),
+};
+
+ExpensesTable.defaultProps = {
+  expenses: [],
+};
+
+const mapStateToProps = (state) => ({
+  expenses: state.wallet.expenses,
+});
+
+export default connect(mapStateToProps, null)(ExpensesTable);
