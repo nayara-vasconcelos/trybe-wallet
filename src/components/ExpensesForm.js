@@ -1,47 +1,53 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { addExpense, fetchCurrencies } from '../actions';
-
-/**
- * Formato no Redux:
- *
- * expenses: [{
-  "id": 0,
-  "value": "3",
-  "description": "Hot Dog",
-  "currency": "USD",
-  "method": "Dinheiro",
-  "tag": "Alimentação",
-  "exchangeRates": {
-    "USD": {
-      "code": "USD",
-      "name": "Dólar Americano",
-      "ask": "5.6208",
-      ...
-    },
-  }]
-  *
- */
+import { addExpense, editExpense, fetchCurrencies } from '../actions';
 
 const INITIAL_STATE = {
+  id: null,
   value: '',
   description: '',
   currency: 'USD',
   method: 'Dinheiro',
   tag: 'Alimentação',
+  exchangeRates: null,
 };
 
 class ExpensesForm extends Component {
   constructor(props) {
     super(props);
-
     this.state = INITIAL_STATE;
   }
 
   componentDidMount() {
     const { requestCurrencies } = this.props;
     requestCurrencies();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { selectedExpense } = this.props;
+    if ((selectedExpense !== prevProps.selectedExpense)) {
+      this.handleForm();
+    }
+  }
+
+  getSelectedExpense = () => {
+    const { expenses, selectedExpense } = this.props;
+    const expenseObj = expenses
+      .find((expense) => expense.id === parseInt(selectedExpense, 10));
+    this.setState((prevState) => ({
+      ...prevState,
+      ...expenseObj,
+    }));
+  }
+
+  handleForm = () => {
+    const { selectedExpense } = this.props;
+    if (selectedExpense.length > 0) {
+      this.getSelectedExpense();
+    } else {
+      this.setState(INITIAL_STATE);
+    }
   }
 
   handleChange = ({ target }) => {
@@ -51,14 +57,20 @@ class ExpensesForm extends Component {
 
   handleAddBtn = () => {
     const { saveExpense, expenses } = this.props;
+    const { value, description, currency, method, tag } = this.state;
     let id = 0;
 
     if (expenses.length !== 0) {
       id = expenses[(expenses.length - 1)].id + 1;
     }
 
-    saveExpense({ id, ...this.state });
+    saveExpense({ id, value, description, currency, method, tag });
     this.setState(INITIAL_STATE);
+  }
+
+  handleUpdateBtn = () => {
+    const { updateExpense } = this.props;
+    updateExpense({ ...this.state });
   }
 
   renderCurrencySelect = () => {
@@ -88,6 +100,28 @@ class ExpensesForm extends Component {
           { currencyOptions }
         </select>
       </label>
+    );
+  }
+
+  renderBtns = () => {
+    const { selectedExpense } = this.props;
+    if (selectedExpense.length > 0) {
+      return (
+        <button
+          type="button"
+          onClick={ this.handleUpdateBtn }
+        >
+          Editar despesa
+        </button>
+      );
+    }
+    return (
+      <button
+        type="button"
+        onClick={ this.handleAddBtn }
+      >
+        Adicionar despesa
+      </button>
     );
   }
 
@@ -134,7 +168,7 @@ class ExpensesForm extends Component {
               data-testid="method-input"
               onChange={ this.handleChange }
             >
-              <option value="Dinheiro'">Dinheiro</option>
+              <option value="Dinheiro">Dinheiro</option>
               <option value="Cartão de crédito">Cartão de crédito</option>
               <option value="Cartão de débito">Cartão de débito</option>
             </select>
@@ -156,13 +190,8 @@ class ExpensesForm extends Component {
               <option value="Saúde">Saúde</option>
             </select>
           </label>
-          {/* Botão para salvar despesas */}
-          <button
-            type="button"
-            onClick={ this.handleAddBtn }
-          >
-            Adicionar despesa
-          </button>
+          {/* Botão para salvar ou editar despesa */}
+          { this.renderBtns() }
         </form>
       </section>
     );
@@ -178,21 +207,26 @@ ExpensesForm.propTypes = {
   ]))),
   currencies: PropTypes.arrayOf(PropTypes.string),
   requestCurrencies: PropTypes.func.isRequired,
+  selectedExpense: PropTypes.string,
+  updateExpense: PropTypes.func.isRequired,
 };
 
 ExpensesForm.defaultProps = {
   expenses: [],
   currencies: [],
+  selectedExpense: '',
 };
 
 const mapStateToProps = (state) => ({
   expenses: state.wallet.expenses,
   currencies: state.wallet.currencies,
+  selectedExpense: state.wallet.selectedExpense,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   saveExpense: (expense) => dispatch(addExpense(expense)),
   requestCurrencies: () => dispatch(fetchCurrencies()),
+  updateExpense: (obj) => dispatch(editExpense(obj)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ExpensesForm);

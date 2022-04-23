@@ -7,6 +7,7 @@ class Header extends Component {
     const { expenses } = this.props;
 
     if (expenses.length === 0) return '0.00';
+    // console.log(expenses);
 
     const sum = expenses.reduce((acc, curr) => {
       const { value, currency, exchangeRates } = curr;

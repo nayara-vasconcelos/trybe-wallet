@@ -6,6 +6,8 @@ import {
   SAVE_EXCHANGE_RATES,
   UPDATE_EXPENSES,
   REMOVE_EXPENSE,
+  EDIT_EXPENSE,
+  SAVE_ID,
 } from '../actions';
 
 const INITIAL_STATE = {
@@ -13,6 +15,7 @@ const INITIAL_STATE = {
   expenses: [],
   isFetching: false,
   error: '',
+  selectedExpense: '',
 };
 
 const walletReducer = (state = INITIAL_STATE, action) => {
@@ -46,6 +49,21 @@ const walletReducer = (state = INITIAL_STATE, action) => {
     return ({
       ...state,
       expenses: state.expenses.filter((expense) => expense.id !== action.payload),
+    });
+  case EDIT_EXPENSE:
+    return ({
+      ...state,
+      expenses: [
+        ...state.expenses.slice(0, action.payload.id),
+        action.payload,
+        ...state.expenses.slice(action.payload.id + 1),
+      ],
+      selectedExpense: '',
+    });
+  case SAVE_ID:
+    return ({
+      ...state,
+      selectedExpense: action.payload,
     });
   default:
     return state;

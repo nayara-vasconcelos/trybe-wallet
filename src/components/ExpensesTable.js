@@ -4,7 +4,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { removeExpense } from '../actions';
+import { removeExpense, saveIdExpense } from '../actions';
 
 /**
  * Formato no Redux:
@@ -30,8 +30,16 @@ import { removeExpense } from '../actions';
 class ExpensesTable extends Component {
   handleDeleteBtn = ({ target }) => {
     const id = parseInt(target.name, 10);
-    const { deleteExpense } = this.props;
+    const { deleteExpense, selectedExpense, selectExpense } = this.props;
     deleteExpense(id);
+    if (target.name === selectedExpense) {
+      selectExpense('');
+    }
+  }
+
+  handleEditBtn = ({ target }) => {
+    const { selectExpense } = this.props;
+    selectExpense(target.name);
   }
 
   renderTableHeader = () => {
@@ -89,10 +97,18 @@ class ExpensesTable extends Component {
       return (
         <tr key={ id }>
           { row }
-          <td>
+          {/* <td>
             <button type="button" name={ id }>Editar</button>
-          </td>
+          </td> */}
           <td>
+            <button
+              type="button"
+              name={ id }
+              data-testid="edit-btn"
+              onClick={ this.handleEditBtn }
+            >
+              Editar
+            </button>
             <button
               type="button"
               name={ id }
@@ -129,24 +145,31 @@ class ExpensesTable extends Component {
 }
 
 ExpensesTable.propTypes = {
-  expenses: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-    PropTypes.object,
-  ]))),
+  expenses: PropTypes.arrayOf(
+    PropTypes.objectOf(PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+      PropTypes.object,
+    ])),
+  ),
   deleteExpense: PropTypes.func.isRequired,
+  selectExpense: PropTypes.func.isRequired,
+  selectedExpense: PropTypes.string,
 };
 
 ExpensesTable.defaultProps = {
   expenses: [],
+  selectedExpense: '',
 };
 
 const mapStateToProps = (state) => ({
   expenses: state.wallet.expenses,
+  selectedExpense: state.wallet.selectedExpense,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   deleteExpense: (id) => dispatch(removeExpense(id)),
+  selectExpense: (id) => dispatch(saveIdExpense(id)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ExpensesTable);
